@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
+  email: { type: String, required: true }, 
   date: { type: Date, required: true },
   orderNumber: { type: String, required: true },
   products: [
@@ -16,7 +17,5 @@ const orderSchema = new mongoose.Schema({
   ],
   amount: { type: Number, required: true }
 });
-
 const Order = mongoose.model('Order', orderSchema);
-
 module.exports = Order;
