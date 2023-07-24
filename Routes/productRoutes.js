@@ -19,10 +19,24 @@ router.get('/', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 8;
     const skip = (page - 1) * limit;
+    let query = {};
 
-    const products = await Product.find().skip(skip).limit(limit);
-    console.log('Fetched products:', products);
-    res.status(200).json(products);
+    if (req.query.similar) {
+      const searchQuery = req.query.searchQuery || '';
+      query = { $text: { $search: searchQuery } };
+    }
+
+    const products = await Product.find(query);
+    const totalCount = await Product.countDocuments(query);
+
+    if (!req.query.similar) {
+      const startIndex = skip;
+      const endIndex = skip + limit;
+      const paginatedProducts = products.slice(startIndex, endIndex);
+      res.status(200).json({ totalCount, products: paginatedProducts });
+    } else {
+      res.status(200).json({ totalCount, products });
+    }
   } catch (error) {
     console.error('Error fetching products:', error);
     res.status(500).json({ error: 'An error occurred while fetching the products' });
@@ -34,7 +48,6 @@ router.post('/', upload.single('image'), async (req, res) => {
     const { title, description, price, color, stock } = req.body;
     const image = req.file.filename;
 
-   
     if (!stock) {
       return res.status(400).json({ error: 'Stock is required' });
     }
@@ -99,7 +112,6 @@ router.post("/checkStock", async (req, res) => {
       return res.status(400).json({ error: "Invalid data format" });
     }
 
-    
     const updatedCart = await Promise.all(
       products.map(async (product) => {
         const foundProduct = await Product.findById(product._id);
@@ -131,7 +143,23 @@ router.get('/count', async (req, res) => {
   }
 });
 
+router.get('/search', async (req, res) => {
+  const { query } = req.query;
 
+  try {
+    const foundProducts = await Product.find({
+      title: { $regex: new RegExp(query, 'i') }, 
+    });
 
+    const totalCount = await Product.countDocuments({
+      title: { $regex: new RegExp(query, 'i') },
+    });
+
+    res.json({ totalCount, products: foundProducts });
+  } catch (error) {
+    console.error('Error searching products:', error);
+    res.status(500).json({ error: 'Error searching products' });
+  }
+});
 
 module.exports = router;
