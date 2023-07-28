@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -6,6 +7,8 @@ const orderRoutes = require('./Routes/orderRoutes');
 const loginRoutes = require('./Routes/loginRoute');
 const SignupRoutes = require('./Routes/signupRoute');
 const passport = require('./Middlewares/passport');
+const payment =  require('./Routes/paymentRoute');
+const product =  require('./Routes/admin/products');
 const app = express();
 app.use(passport.initialize());
 
@@ -32,6 +35,8 @@ mongoose
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/login', loginRoutes);
-app.use('/api/signup',SignupRoutes)
+app.use('/api/signup',SignupRoutes);
+app.use('/api/payment', payment);
+app.use('/api/admin/products', product);
 
 

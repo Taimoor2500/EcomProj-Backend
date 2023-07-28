@@ -1,16 +1,7 @@
 const express = require('express');
-const multer = require('multer');
 const router = express.Router();
 
-const upload = multer({
-  storage: multer.diskStorage({
-    destination: 'D:/qbatch/Project/proj/src/images',
-    filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      cb(null, file.fieldname + '-' + uniqueSuffix + '.' + file.originalname.split('.').pop());
-    },
-  }),
-});
+
 
 const Product = require('../Models/productModel'); 
 const Reservation = require('../Models/Reservation.js');
@@ -44,32 +35,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', upload.single('image'), async (req, res) => {
-  try {
-    const { title, description, price, color, stock } = req.body;
-    const image = req.file.filename;
 
-    if (!stock) {
-      return res.status(400).json({ error: 'Stock is required' });
-    }
-
-    const newProduct = new Product({
-      title,
-      description,
-      price,
-      image: `http://localhost:5000/images/${image}`,
-      color,
-      stock, 
-    });
-
-    await newProduct.save();
-
-    res.status(201).json(newProduct);
-  } catch (error) {
-    console.error('Error creating product:', error);
-    res.status(500).json({ error: 'An error occurred while creating the product' });
-  }
-});
 
 router.put('/updateStock', async (req, res) => {
   try {
@@ -243,8 +209,6 @@ router.put('/updateR', async (req, res) => {
   }
 });
 
-
-
 router.delete('/clearReservations/:email', async (req, res) => {
   try {
     const { email } = req.params;
@@ -275,21 +239,18 @@ router.delete('/clearReservations/:email', async (req, res) => {
   }
 });
 
-
-
-
 router.delete('/clearReservationsO/:email', async (req, res) => {
   try {
     const { email } = req.params;
 
-    
     const reservations = await Reservation.find({ userEmail: email });
 
     if (reservations.length === 0) {
-      return res.status(404).json({ error: 'No reservations found for the email' });
+      
+      return res.status(200).json({ message: 'No reservations found for the email. Nothing to clear.' });
     }
 
-   
+    
     for (const reservation of reservations) {
       await reservation.deleteOne();
     }
@@ -300,6 +261,7 @@ router.delete('/clearReservationsO/:email', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while clearing reservations' });
   }
 });
+
 
 
 

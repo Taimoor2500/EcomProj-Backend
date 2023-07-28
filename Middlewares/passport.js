@@ -20,7 +20,9 @@ passport.use(
           return done(null, false, { message: 'Invalid email or password' });
         }
 
-        return done(null, user);
+        
+
+        return done(null, user); 
       } catch (error) {
         return done(error);
       }

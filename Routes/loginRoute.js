@@ -11,11 +11,23 @@ const secretKey = new mongoose.Types.ObjectId().toString();
 
 let resetTokenMap = {};
 
-router.post('/', passport.authenticate('local', { session: false }), (req, res) => {
+router.post('/', passport.authenticate('local', { session: false }), async (req, res) => {
   const { email, name } = req.user;
-  const token = jwt.sign({ email, name }, secretKey, { expiresIn: '1h' });
 
-  return res.status(200).json({ message: 'Login successful', token, name, email });
+  try {
+    
+    const user = await User.findOne({ email });
+    const role = user.role;
+    console.log(role);
+
+    
+    const token = jwt.sign({ email, name, role }, secretKey, { expiresIn: '1h' });
+
+    return res.status(200).json({ message: 'Login successful', token, name, email, role });
+  } catch (error) {
+    console.error('Error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 const generateResetToken = () => {

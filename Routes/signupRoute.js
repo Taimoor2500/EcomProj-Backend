@@ -3,20 +3,15 @@ const router = express.Router();
 const User = require('../Models/loginModel');
 const bcrypt = require('bcrypt');
 
-
-
-
 router.post('/', async (req, res) => {
-  const { email, password, name } = req.body;
+  const { email, password, name, role } = req.body; 
 
   try {
-    // Check if the email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ error: 'Email already exists' });
     }
 
-   
     const hashedPassword = await bcrypt.hash(password, 10);
 
     
@@ -24,9 +19,9 @@ router.post('/', async (req, res) => {
       email,
       password: hashedPassword,
       name,
+      role: role || 'client', 
     });
 
-    // Save the user to the database
     await newUser.save();
 
     return res.status(201).json({ message: 'User created successfully' });
@@ -36,6 +31,4 @@ router.post('/', async (req, res) => {
   }
 });
 
-
-
-  module.exports = router;
+module.exports = router;

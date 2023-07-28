@@ -16,7 +16,11 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', (req, res) => {
+ 
+ 
   const orderData = { ...req.body }; 
+
+  console.log(orderData);
 
   const newOrder = new Order(orderData);
   newOrder
