@@ -9,6 +9,7 @@ const SignupRoutes = require('./Routes/signupRoute');
 const passport = require('./Middlewares/passport');
 const payment =  require('./Routes/paymentRoute');
 const product =  require('./Routes/admin/products');
+const order = require('./Routes/admin/Order')
 const app = express();
 app.use(passport.initialize());
 
@@ -38,5 +39,6 @@ app.use('/api/login', loginRoutes);
 app.use('/api/signup',SignupRoutes);
 app.use('/api/payment', payment);
 app.use('/api/admin/products', product);
+app.use('/api/admin/orders', order);
 
 
